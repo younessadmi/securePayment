@@ -59,4 +59,8 @@ class ExpressCheckout{
         }
         return $liste_param_paypal; // Retourne l'array
     }
+
+    private function getOptionBase(){
+        return BASE_URL_API_PAYPAL.'VERSION='.VERSION_API_PAYPAL.'&USER='.USERNAME_FACILITATOR.'&PWD='.PASSWORD_FACILITATOR.'&SIGNATURE='.SIGNATURE_FACILITATOR;
+    }
 }
