@@ -1,4 +1,5 @@
 <?php
+session_start();
 require('config.php');
 
 class ExpressCheckout{
@@ -9,6 +10,18 @@ class ExpressCheckout{
     private description = '';
     private localeCode = 'FR';
     private logo = null;
+
+    private listCurrencyPossible = [];
+    private listCountriesPossible = [];
+
+    public function __construct(){
+        //set list of the possible countries
+        $string = file_get_contents('./json/countries.json');
+        $this->listCountriesPossible = json_decode($string, true);
+        //set list of the possible currencies
+        $string = file_get_contents('./json/currencies.json');
+        $this->listCurrencyPossible = json_decode($string, true);
+    }
 
     public function setExpressCheckout(){
         $requete = $this->getOptionBase();
@@ -63,4 +76,6 @@ class ExpressCheckout{
     private function getOptionBase(){
         return BASE_URL_API_PAYPAL.'VERSION='.VERSION_API_PAYPAL.'&USER='.USERNAME_FACILITATOR.'&PWD='.PASSWORD_FACILITATOR.'&SIGNATURE='.SIGNATURE_FACILITATOR;
     }
+
+
 }
