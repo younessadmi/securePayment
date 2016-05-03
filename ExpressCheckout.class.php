@@ -155,7 +155,7 @@ class ExpressCheckout{
         if($resultat_paypal){ // S'il y a une erreur, on affiche "Erreur", suivi du détail de l'erreur.
             $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
             return $liste_param_paypal;
-        }else echo "<p>Error</p><p>".curl_error($ch)."</p>";
+        }else throw new Exception(curl_error($ch));
         // On ferme notre session cURL.
         curl_close($ch);
     }
