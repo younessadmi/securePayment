@@ -3,16 +3,16 @@ session_start();
 require('config.php');
 
 class ExpressCheckout{
-    private cancelUrl = null;
-    private returnUrl = null;
-    private static amount = 0;
-    private currencyCode = 'EUR';
-    private description = '';
-    private localeCode = 'FR';
-    private logo = null;
+    private $cancelUrl = null;
+    private $returnUrl = null;
+    private static $amount = 0;
+    private $currencyCode = 'EUR';
+    private $description = '';
+    private $localeCode = 'FR';
+    private $logo = null;
 
-    private listCurrencyPossible = [];
-    private listCountriesPossible = [];
+    private $listCurrencyPossible = [];
+    private $listCountriesPossible = [];
 
     public function __construct(){
         //set list of the possible countries
@@ -77,5 +77,11 @@ class ExpressCheckout{
         return BASE_URL_API_PAYPAL.'VERSION='.VERSION_API_PAYPAL.'&USER='.USERNAME_FACILITATOR.'&PWD='.PASSWORD_FACILITATOR.'&SIGNATURE='.SIGNATURE_FACILITATOR;
     }
 
-
+    public function doExpressCheckout(){
+        //to do
+    }
+    
+    public function getExpressCheckout(){
+        //to do
+    }
 }
