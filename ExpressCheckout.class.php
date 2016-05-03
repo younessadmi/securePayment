@@ -79,33 +79,30 @@ class ExpressCheckout{
     public function setExpressCheckout(){
         $requete = $this->getOptionBase();
 
-        //faire des vérifications de sécurité sur tous les champs
-        //ok
         $requete .= '&METHOD=SetExpressCheckout';
-        //ok
         if(filter_var($this->CancelUrl, FILTER_VALIDATE_URL)){
             $requete .= '&CANCELURL='.urlencode($this->CancelUrl);
-        }else throw new Exception('The CancelUrl variable expected a valid URL.');   
-        //ok
+        }else throw new Exception('The CancelUrl variable expected a valid URL.');
+
         if(filter_var($this->ReturnUrl, FILTER_VALIDATE_URL)){
             $requete .= '&RETURNURL='.urlencode($this->ReturnUrl);
-        }else throw new Exception('The ReturnUrl variable expected a valid URL.');   
-        //ok
+        }else throw new Exception('The ReturnUrl variable expected a valid URL.');
+
         if($this->Amount > 0){
             $requete .= '&AMT='.$this->Amount;
-        }else throw new Exception('The amount must be positive.');
-        //ok
+        }else throw new Exception('The amount must be a positive number.');
+
         if(array_key_exists($this->CurrencyCode, $this->listCurrenciesPossible)){
             $requete .= '&CURRENCYCODE='.$this->CurrencyCode;
         }else throw new Exception('The currency code is not known.');
-        //ok
+
         if($this->Description != ''){
             $requete .= '&DESC='.urlencode($this->Description);
         }
-        //ok
         if(array_key_exists($this->LocaleCode, $this->listCountriesPossible)){
             $requete .= '&LOCALECODE='.$this->LocaleCode;
         }else throw new Exception('The countrie code is not known.');
+
         //if null, remove it and if not, check if is image
         if($this->Logo != ''){
             if(filter_var($this->Logo, FILTER_VALIDATE_URL)){
@@ -132,10 +129,22 @@ class ExpressCheckout{
 
         // On ajoute le reste des options
         $requete .= '&METHOD=DoExpressCheckoutPayment';
+        if(isset($_GET['token']) && ! empty($_GET['token'])){
         $requete .= '&TOKEN='.htmlentities($_GET['token'], ENT_QUOTES);
-        $requete .= '&AMT='.$this->Amount;
-        $requete .= '&CURRENCYCODE='.$this->CurrencyCode;
-        $requete .= '&PayerID='.htmlentities($_GET['PayerID'], ENT_QUOTES);
+
+        } else throw new Exception('The token is invalid');
+        if($this->Amount > 0){
+            $requete .= '&AMT='.$this->Amount;
+        }else throw new Exception('The amount must be a positive number.');
+
+        if(array_key_exists($this->CurrencyCode, $this->listCurrenciesPossible)){
+            $requete .= '&CURRENCYCODE='.$this->CurrencyCode;
+        }else throw new Exception('The currency code is not known.');
+
+        if(isset($_GET['PayerID']) && !empty($_GET['PayerID'])){
+            $requete .= '&PayerID='.htmlentities($_GET['PayerID'], ENT_QUOTES);
+        } else throw new Exception('The payer ID is unvalid.');
+
         $requete .= '&PAYMENTACTION=sale';
 
         $ch = curl_init($requete);
@@ -146,7 +155,7 @@ class ExpressCheckout{
         if($resultat_paypal){ // S'il y a une erreur, on affiche "Erreur", suivi du détail de l'erreur.
             $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
             return $liste_param_paypal;
-        }else echo "<p>Erreur</p><p>".curl_error($ch)."</p>";
+        }else echo "<p>Error</p><p>".curl_error($ch)."</p>";
         // On ferme notre session cURL.
         curl_close($ch);
     }
