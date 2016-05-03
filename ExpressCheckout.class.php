@@ -151,10 +151,12 @@ class ExpressCheckout{
         curl_close($ch);
     }
 
-    public function getExpressCheckout($token){
+    public function getExpressCheckout($token = ''){
         $requete = $this->getOptionBase();
         $requete .= '&METHOD=GetExpressCheckoutDetails';
-        $requete .= '&TOKEN='.htmlentities($token, ENT_QUOTES); // Ajoute le jeton
+        if($token != ''){
+            $requete .= '&TOKEN='.htmlentities($token, ENT_QUOTES); // Ajoute le jeton
+        }else throw new Exception('The token is missing');
 
         $ch = curl_init($requete);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
@@ -163,10 +165,8 @@ class ExpressCheckout{
 
         if($resultat_paypal){            
             $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
-            echo "<pre>";
-            print_r($liste_param_paypal);
-            echo "</pre>";
-        }else echo "<p>Erreur</p><p>".curl_error($ch)."</p>";
+            return $liste_param_paypal;
+        }else throw new Exception(curl_error($ch));
         curl_close($ch);
     }
 
