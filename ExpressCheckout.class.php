@@ -26,6 +26,8 @@ class ExpressCheckout{
     public function setExpressCheckout(){
         $requete = $this->getOptionBase();
 
+        $requete .= '&METHOD=SetExpressCheckout';
+
         if($this->cancelUrl() == null){
             die('Cancel URL has not been set');
         }else $requete .= '&CANCELURL='.urlencode($this->cancelUrl);
@@ -61,6 +63,8 @@ class ExpressCheckout{
                 die("<p>Erreur de communication avec le serveur PayPal.<br />".$liste_param_paypal['L_SHORTMESSAGE0']."<br />".$liste_param_paypal['L_LONGMESSAGE0']."</p>");
             }
         }else die('<p>Erreur:</p><p>'.curl_error($ch).'</p>');
+        // On ferme notre session cURL.
+        curl_close($ch);
     }
 
     private function transformUrlParametersToArray($resultat_paypal){
@@ -78,9 +82,36 @@ class ExpressCheckout{
     }
 
     public function doExpressCheckout(){
-        //to do
+        $requete = $this->getOptionBase();
+
+        // On ajoute le reste des options
+        $requete = $requete."&METHOD=DoExpressCheckoutPayment";
+        $requete .= '&TOKEN='htmlentities($_GET['token'], ENT_QUOTES);
+        $requete .= '&AMT='.$this->amount;
+        $requete .= '&CURRENCYCODE='.$this->currencyCode;
+        $requete .= '&PayerID='.htmlentities($_GET['PayerID'], ENT_QUOTES);
+        $requete .= '&PAYMENTACTION=sale';
+
+        $ch = curl_init($requete);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $resultat_paypal = curl_exec($ch);
+
+        if($resultat_paypal){ // S'il y a une erreur, on affiche "Erreur", suivi du détail de l'erreur.
+            $liste_param_paypal = transformUrlParametersToArray($resultat_paypal);
+
+            echo "<pre>";
+            print_r($liste_param_paypal);
+            echo "</pre>";
+
+            if($liste_param_paypal['ACK'] == 'Success'){ // Si la requête a été traitée avec succès
+                echo "<h1>Youpii, le paiement a été effectué</h1>"; // On affiche la page avec les remerciements, et tout le tralala...
+            }else echo "<p>Erreur de communication avec le serveur PayPal.<br />".$liste_param_paypal['L_SHORTMESSAGE0']."<br />".$liste_param_paypal['L_LONGMESSAGE0']."</p>";
+        }else echo "<p>Erreur</p><p>".curl_error($ch)."</p>";
+        // On ferme notre session cURL.
+        curl_close($ch);
     }
-    
+
     public function getExpressCheckout(){
         //to do
     }
