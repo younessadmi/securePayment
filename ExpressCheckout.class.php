@@ -72,7 +72,7 @@ class ExpressCheckout{
 
         // On ajoute le reste des options
         $requete .= '&METHOD=DoExpressCheckoutPayment';
-        $requete .= '&TOKEN='htmlentities($_GET['token'], ENT_QUOTES);
+        $requete .= '&TOKEN='.htmlentities($_GET['token'], ENT_QUOTES);
         $requete .= '&AMT='.$this->amount;
         $requete .= '&CURRENCYCODE='.$this->currencyCode;
         $requete .= '&PayerID='.htmlentities($_GET['PayerID'], ENT_QUOTES);
