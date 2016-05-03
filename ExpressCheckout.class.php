@@ -3,61 +3,73 @@ session_start();
 require('config.php');
 
 class ExpressCheckout{
-    private $cancelUrl = null;
-    private $returnUrl = null;
-    private static $amount = 0;
-    private $currencyCode = 'EUR';
-    private $description = '';
-    private $localeCode = 'FR';
-    private $logo = null;
+    private $CancelUrl = null;
+    private $ReturnUrl = null;
+    private $Amount = 0;
+    private $CurrencyCode = 'EUR';
+    private $Description = '';
+    private $LocaleCode = 'FR';
+    private $Logo = null;
 
     private $listCurrencyPossible = [];
     private $listCountriesPossible = [];
 
-    public function __construct(){
+    public function __construct(){        
         //set list of the possible countries
-        $string = file_get_contents('./json/countries.json');
+        $string = file_get_contents(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json');
         $this->listCountriesPossible = json_decode($string, true);
         //set list of the possible currencies
-        $string = file_get_contents('./json/currencies.json');
+        $string = file_get_contents(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'currencies.json');
         $this->listCurrencyPossible = json_decode($string, true);
+    }
+
+    public function __call($method, $params) {
+        $var = substr($method, 3);
+        if(strncasecmp($method, "set", 3) || strncasecmp($method, "get", 3)){
+            //SETTERS
+            if(strncasecmp($method, "set", 3) == 0 && isset($params[0])) {
+                $this->$var = $params[0];
+                return $this;
+            }
+            //GETTERS
+            if(strncasecmp($method, "get", 3) == 0) {
+                return $this->$var;
+            }
+        }
     }
 
     public function setExpressCheckout(){
         $requete = $this->getOptionBase();
 
+        //faire des vérifications de sécurité sur tous les champs
+        //ok
         $requete .= '&METHOD=SetExpressCheckout';
-
-        if($this->cancelUrl() == null){
-            die('Cancel URL has not been set');
-        }else $requete .= '&CANCELURL='.urlencode($this->cancelUrl);
-        if($this->returnUrl() == null){
-            die('Return URL has not been set');
-        }else $requete .= '&RETURNURL='.urlencode($this->returnUrl);
-        if($this->amout <= 0){
-            die('The amount cannot be null or less than zero.');
-        }else $requete .= '&AMT='.$this->amount;
-
-        $requete .= '&CURRENCYCODE='.$this->currencyCode;
-        $requete .= '&DESC='.urlencode($this->description);
-        $requete .= '&LOCALECODE='.$this->localeCode;
-
-        if($this->logo != null){
-            $requete .= '&HDRIMG='.urlencode($this->logo);
-        }
+        //check if url
+        $requete .= '&CANCELURL='.urlencode($this->CancelUrl);
+        //check if url
+        $requete .= '&RETURNURL='.urlencode($this->ReturnUrl);
+        //check not null and positive
+        $requete .= '&AMT='.$this->Amount;
+        //check if in the list
+        $requete .= '&CURRENCYCODE='.$this->CurrencyCode;
+        //ok
+        $requete .= '&DESC='.urlencode($this->Description);
+        //check if in the list
+        $requete .= '&LOCALECODE='.$this->LocaleCode;
+        //if null, remove it and if not, check if is image
+        $requete .= '&HDRIMG='.urlencode($this->Logo);
 
         $ch = curl_init($requete);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $resultat_paypal = curl_exec($ch);
         if($resultat_paypal){
-
-            $liste_param_paypal = transformUrlParametersToArray($resultat_paypal);
+            $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
             // Si la requête a été traitée avec succès
             if ($liste_param_paypal['ACK'] == 'Success')
             {
                 // Redirige le visiteur sur le site de PayPal
-                header("Location: https://www.sandbox.paypal.com/webscr&cmd=_express-checkout&token=".$liste_param_paypal['TOKEN']);
+                header("Location: ".PAYPAL_SERVER."webscr&cmd=_express-checkout&token=".$liste_param_paypal['TOKEN']);
                 exit();
             }else{ // En cas d'échec, affiche la première erreur trouvée.
                 die("<p>Erreur de communication avec le serveur PayPal.<br />".$liste_param_paypal['L_SHORTMESSAGE0']."<br />".$liste_param_paypal['L_LONGMESSAGE0']."</p>");
@@ -73,8 +85,8 @@ class ExpressCheckout{
         // On ajoute le reste des options
         $requete .= '&METHOD=DoExpressCheckoutPayment';
         $requete .= '&TOKEN='.htmlentities($_GET['token'], ENT_QUOTES);
-        $requete .= '&AMT='.$this->amount;
-        $requete .= '&CURRENCYCODE='.$this->currencyCode;
+        $requete .= '&AMT='.$this->Amount;
+        $requete .= '&CURRENCYCODE='.$this->CurrencyCode;
         $requete .= '&PayerID='.htmlentities($_GET['PayerID'], ENT_QUOTES);
         $requete .= '&PAYMENTACTION=sale';
 
@@ -84,15 +96,8 @@ class ExpressCheckout{
         $resultat_paypal = curl_exec($ch);
 
         if($resultat_paypal){ // S'il y a une erreur, on affiche "Erreur", suivi du détail de l'erreur.
-            $liste_param_paypal = transformUrlParametersToArray($resultat_paypal);
-
-            echo "<pre>";
-            print_r($liste_param_paypal);
-            echo "</pre>";
-
-            if($liste_param_paypal['ACK'] == 'Success'){ // Si la requête a été traitée avec succès
-                echo "<h1>Youpii, le paiement a été effectué</h1>"; // On affiche la page avec les remerciements, et tout le tralala...
-            }else echo "<p>Erreur de communication avec le serveur PayPal.<br />".$liste_param_paypal['L_SHORTMESSAGE0']."<br />".$liste_param_paypal['L_LONGMESSAGE0']."</p>";
+            $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
+            return $liste_param_paypal;
         }else echo "<p>Erreur</p><p>".curl_error($ch)."</p>";
         // On ferme notre session cURL.
         curl_close($ch);
@@ -109,7 +114,7 @@ class ExpressCheckout{
         $resultat_paypal = curl_exec($ch);
 
         if($resultat_paypal){            
-            $liste_param_paypal = transformUrlParametersToArray($resultat_paypal);
+            $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
             echo "<pre>";
             print_r($liste_param_paypal);
             echo "</pre>";
