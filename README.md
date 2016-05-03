@@ -7,14 +7,13 @@ Pour utiliser, vous devrez avoir l'extension `curl` activée.
 ## Getting Started
 
 Pour utiliser cette librarie, vous devez tout d'abord:
+
 1. Configurer le fichier `config.php` à la racine du projet, en y indiquant `USERNAME_FACILITATOR`, `PASSWORD_FACILITATOR` et `SIGNATURE_FACILITATOR` que vous trouverez sur votre compte Paypal (cf l'API de Paypal)
-2. Inclure la classe `ExpressCheckout` : 
-```
-require('/path/to/ExpressCheckout.class.php')
-```
-3. C'est tout !
 
-
+2. Inclure la classe `ExpressCheckout` 
+```
+require('/path/to/ExpressCheckout.class.php');
+```
 ## Methods
 ### 1) Créer une instance
 ```
@@ -23,21 +22,21 @@ $obj = new ExpressCheckout();
 ### 2) Setter/Getter
 Après avoir créer une instance de la classe ExpressCheckout, il faut d'abord indiquer quelques informations avant d'envoyer la requête à Paypal. Voici la liste des informations que vous pouvez envoyer:
 ```
-/* On indique l'url sur laquelle le client sera redirigé après paiement */
+// On indique l'url sur laquelle le client sera redirigé après paiement
 $obj->setReturnUrl('https://mysite.com/return.php');
-/* On indique l'url sur laquelle le client sera redirigé s'il a annulé la transaction */
+// On indique l'url sur laquelle le client sera redirigé s'il a annulé la transaction
 $obj->setCancelUrl('https://mysite.com/cancel.php');
-/* On indique le montant de la transaction */
+// On indique le montant de la transaction
 $obj->setAmount(121);
-/* On indique la devise */
+// On indique la devise
 $obj->setCurrencyCode('EUR');
-/* On indique la langue d'affichage sur Paypal */
+// On indique la langue d'affichage sur Paypal
 $obj->setLocaleCode('FR');
-/* On indique si on utilise la librarie dans le cadre de la sandbox de Paypal ou non */
+// On indique si on utilise la librarie dans le cadre de la sandbox de Paypal ou non
 $obj->isSandbox(true);
-/* Facultatif: on indique notre logo qui sera affiché sur Paypal */
+// Facultatif: on indique notre logo qui sera affiché sur Paypal
 $obj->setLogo('https://mysite.com/img/logo.png');
-/* Facultatif: on indique une description */
+// Facultatif: on indique une description
 $obj->setDescription("Ceci est une description que le client pourra retrouver lors du paiement sur Paypal.");
 ```
 ### 3) Set Express Checkout
@@ -56,7 +55,7 @@ Si la requête ne s'est pas bien déroulée, une erreur de type `Exception` sera
 ### 4) Do Express Checkout
 Afin de valider le paiement, on appelle la méthode `$obj->doExpressCheckout()`. L'appel de cette méthode doit être à la page `ReturnUrl`. 
 
-Mais avant cela, il faut de nouveau créer un objet `ExpressCheckout` et indiquer le montant (`setAmount()`), le cadre de d'utilisation (`isSandbox()`), la devise (`setCurrencyCode`), la langue (`setLocaleCode()`) et éventuellement la description et le logo. 
+Mais avant cela, il faut de nouveau créer un objet `ExpressCheckout` et indiquer le montant (`setAmount()`), le cadre de d'utilisation (`isSandbox()`), la devise (`setCurrencyCode()`), la langue (`setLocaleCode()`) et éventuellement la description et le logo. 
 
 La méthode `$obj->doExpressCheckout()` renvoit un tableau avec les informations concernant la transaction (voir l'API NVP Paypal). 
 
