@@ -85,7 +85,7 @@ class ExpressCheckout{
         $requete = $this->getOptionBase();
 
         // On ajoute le reste des options
-        $requete = $requete."&METHOD=DoExpressCheckoutPayment";
+        $requete .= '&METHOD=DoExpressCheckoutPayment';
         $requete .= '&TOKEN='htmlentities($_GET['token'], ENT_QUOTES);
         $requete .= '&AMT='.$this->amount;
         $requete .= '&CURRENCYCODE='.$this->currencyCode;
@@ -113,6 +113,22 @@ class ExpressCheckout{
     }
 
     public function getExpressCheckout(){
-        //to do
+        $requete = $this->getOptionBase();
+        $requete .= '&METHOD=GetExpressCheckoutDetails';
+        $requete .= '&TOKEN='.htmlentities($_GET['token'], ENT_QUOTES); // Ajoute le jeton
+
+        $ch = curl_init($requete);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $resultat_paypal = curl_exec($ch);
+
+        if($resultat_paypal){            
+            $liste_param_paypal = transformUrlParametersToArray($resultat_paypal);
+            echo "<pre>";
+            print_r($liste_param_paypal);
+            echo "</pre>";
+            // Mise à jour de la base de données & traitements divers... Exemple :
+        }else echo "<p>Erreur</p><p>".curl_error($ch)."</p>";
+        curl_close($ch);
     }
 }
