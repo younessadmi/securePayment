@@ -67,20 +67,6 @@ class ExpressCheckout{
         curl_close($ch);
     }
 
-    private function transformUrlParametersToArray($resultat_paypal){
-        $liste_parametres = explode("&",$resultat_paypal); // Crée un tableau de paramètres
-        foreach($liste_parametres as $param_paypal) // Pour chaque paramètre
-        {
-            list($nom, $valeur) = explode("=", $param_paypal); // Sépare le nom et la valeur
-            $liste_param_paypal[$nom]=urldecode($valeur); // Crée l'array final
-        }
-        return $liste_param_paypal; // Retourne l'array
-    }
-
-    private function getOptionBase(){
-        return BASE_URL_API_PAYPAL.'VERSION='.VERSION_API_PAYPAL.'&USER='.USERNAME_FACILITATOR.'&PWD='.PASSWORD_FACILITATOR.'&SIGNATURE='.SIGNATURE_FACILITATOR;
-    }
-
     public function doExpressCheckout(){
         $requete = $this->getOptionBase();
 
@@ -130,5 +116,19 @@ class ExpressCheckout{
             // Mise à jour de la base de données & traitements divers... Exemple :
         }else echo "<p>Erreur</p><p>".curl_error($ch)."</p>";
         curl_close($ch);
+    }
+
+    private function transformUrlParametersToArray($resultat_paypal){
+        $liste_parametres = explode("&",$resultat_paypal); // Crée un tableau de paramètres
+        foreach($liste_parametres as $param_paypal) // Pour chaque paramètre
+        {
+            list($nom, $valeur) = explode("=", $param_paypal); // Sépare le nom et la valeur
+            $liste_param_paypal[$nom]=urldecode($valeur); // Crée l'array final
+        }
+        return $liste_param_paypal; // Retourne l'array
+    }
+
+    private function getOptionBase(){
+        return BASE_URL_API_PAYPAL.'VERSION='.VERSION_API_PAYPAL.'&USER='.USERNAME_FACILITATOR.'&PWD='.PASSWORD_FACILITATOR.'&SIGNATURE='.SIGNATURE_FACILITATOR;
     }
 }
