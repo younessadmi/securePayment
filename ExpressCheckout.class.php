@@ -1,5 +1,4 @@
 <?php
-session_start();
 require('config.php');
 
 class ExpressCheckout{
@@ -17,6 +16,7 @@ class ExpressCheckout{
     private $Description = '';
     private $LocaleCode = '';
     private $Logo = '';
+    private $paypal_token = '';
 
     private $base_url_api_paypal = '';
     private $paypal_server = '';
@@ -76,7 +76,7 @@ class ExpressCheckout{
         }
     }
 
-    public function setExpressCheckout(){
+    public function getToken(){
         $requete = $this->getOptionBase();
 
         $requete .= '&METHOD=SetExpressCheckout';
@@ -117,11 +117,18 @@ class ExpressCheckout{
         if($resultat_paypal){
             $liste_param_paypal = $this->transformUrlParametersToArray($resultat_paypal);
             if ($liste_param_paypal['ACK'] == 'Success'){
-                header('Location: '.$this->paypal_server.'webscr&cmd=_express-checkout&token='.$liste_param_paypal['TOKEN']);
-                exit();
+                $this->paypal_token = $liste_param_paypal['TOKEN'];
+                return $liste_param_paypal['TOKEN'];
             }else throw new Exception($liste_param_paypal['L_SHORTMESSAGE0'].' - '.$liste_param_paypal['L_LONGMESSAGE0']);
         }else throw new Exception(curl_error($ch));
         curl_close($ch);
+    }
+    
+    public function setExpressCheckout(){
+        if($this->paypal_token != ''){
+            header('Location: '.$this->paypal_server.'webscr&cmd=_express-checkout&token='.$this->paypal_token);
+            exit();
+        }else throw new Exception('Aucun token n\'a été activé');
     }
 
     public function doExpressCheckout(){
