@@ -19,9 +19,9 @@ class ExpressCheckout{
     private $Logo = '';
     private $paypal_token = '';
 
-    private $username_facilitator = '';
-    private $password_facilitator = '';
-    private $signature_facilitator = '';
+    private $Username_facilitator = '';
+    private $Password_facilitator = '';
+    private $Signature_facilitator = '';
 
     private $base_url_api_paypal = '';
     private $paypal_server = '';
