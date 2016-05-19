@@ -1,8 +1,9 @@
 <?php
-require('config.php');
-
 class ExpressCheckout{
 
+    const VERSION_API_PAYPAL = 124;
+    const SITE_PATH = realpath(dirname(__FILE__));
+    
     const API_NVP_PROD = 'https://api-3t.paypal.com/nvp?';
     const SERVER_NVP_PROD = 'https://www.paypal.com/';
 
@@ -18,6 +19,10 @@ class ExpressCheckout{
     private $Logo = '';
     private $paypal_token = '';
 
+    private $username_facilitator = '';
+    private $password_facilitator = '';
+    private $signature_facilitator = '';
+
     private $base_url_api_paypal = '';
     private $paypal_server = '';
 
@@ -25,26 +30,15 @@ class ExpressCheckout{
     private $listCountriesPossible = [];
 
     public function __construct(){
-        //check if the config file has been set
-        if(!defined('USERNAME_FACILITATOR') || !defined('PASSWORD_FACILITATOR') || !defined('SIGNATURE_FACILITATOR')){
-            die('The config.php file is corrupted'); //mandatory
-        }
-        if(!defined('VERSION_API_PAYPAL') || !defined('SITE_PATH')){
-            die('The config.php file is corrupted'); //mandatory
-        }
-        if(USERNAME_FACILITATOR == '' || PASSWORD_FACILITATOR == '' || SIGNATURE_FACILITATOR == ''){
-            throw new Exception('You forgot to set the config.php file'); 
-        }
-
         //set list of the possible countries
-        if(file_exists(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
-            $string = file_get_contents(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json');
+        if(file_exists(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
+            $string = file_get_contents(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json');
         }else throw new Exception('The countries.json file is not exist'); 
         $this->listCountriesPossible = json_decode($string, true);
 
         //set list of the possible currencies
-        if(file_exists(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
-            $string = file_get_contents(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'currencies.json');
+        if(file_exists(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
+            $string = file_get_contents(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'currencies.json');
         }else throw new Exception('The currencies.json file is not exist'); 
         $this->listCurrenciesPossible = json_decode($string, true);
     }
@@ -123,12 +117,12 @@ class ExpressCheckout{
         }else throw new Exception(curl_error($ch));
         curl_close($ch);
     }
-    
+
     public function setExpressCheckout(){
         if($this->paypal_token != ''){
             header('Location: '.$this->paypal_server.'webscr&cmd=_express-checkout&token='.$this->paypal_token);
             exit();
-        }else throw new Exception('Aucun token n\'a été activé');
+        }else throw new Exception('No token has been sent');
     }
 
     public function doExpressCheckout(){
@@ -137,7 +131,7 @@ class ExpressCheckout{
         // On ajoute le reste des options
         $requete .= '&METHOD=DoExpressCheckoutPayment';
         if(isset($_GET['token']) && ! empty($_GET['token'])){
-        $requete .= '&TOKEN='.htmlentities($_GET['token'], ENT_QUOTES);
+            $requete .= '&TOKEN='.htmlentities($_GET['token'], ENT_QUOTES);
 
         } else throw new Exception('The token is invalid');
         if($this->Amount > 0){
@@ -197,6 +191,10 @@ class ExpressCheckout{
     }
 
     private function getOptionBase(){
-        return $this->base_url_api_paypal.'VERSION='.VERSION_API_PAYPAL.'&USER='.USERNAME_FACILITATOR.'&PWD='.PASSWORD_FACILITATOR.'&SIGNATURE='.SIGNATURE_FACILITATOR;
+        if($this->username_facilitator == '' || $this->password_facilitator == '' || $this->signature_facilitator == ''){
+            throw new Exception('You forgot to set the config.php file'); 
+        }
+        return $this->base_url_api_paypal.'VERSION='.self::VERSION_API_PAYPAL.'&USER='.$this->username_facilitator.'&PWD='.$this->password_facilitator.'&SIGNATURE='.$this->signature_facilitator;
     }
 }
+?>
