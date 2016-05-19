@@ -1,8 +1,8 @@
 <?php
+DEFINE('SITE_PATH', realpath(dirname(__FILE__)));
 class ExpressCheckout{
 
     const VERSION_API_PAYPAL = 124;
-    const SITE_PATH = realpath(dirname(__FILE__));
     
     const API_NVP_PROD = 'https://api-3t.paypal.com/nvp?';
     const SERVER_NVP_PROD = 'https://www.paypal.com/';
@@ -31,14 +31,14 @@ class ExpressCheckout{
 
     public function __construct(){
         //set list of the possible countries
-        if(file_exists(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
-            $string = file_get_contents(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json');
+        if(file_exists(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
+            $string = file_get_contents(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json');
         }else throw new Exception('The countries.json file is not exist'); 
         $this->listCountriesPossible = json_decode($string, true);
 
         //set list of the possible currencies
-        if(file_exists(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
-            $string = file_get_contents(self::SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'currencies.json');
+        if(file_exists(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'countries.json')){
+            $string = file_get_contents(SITE_PATH.DIRECTORY_SEPARATOR.'json'.DIRECTORY_SEPARATOR.'currencies.json');
         }else throw new Exception('The currencies.json file is not exist'); 
         $this->listCurrenciesPossible = json_decode($string, true);
     }
@@ -191,10 +191,10 @@ class ExpressCheckout{
     }
 
     private function getOptionBase(){
-        if($this->username_facilitator == '' || $this->password_facilitator == '' || $this->signature_facilitator == ''){
-            throw new Exception('You forgot to set the config.php file'); 
+        if($this->Username_facilitator == '' || $this->Password_facilitator == '' || $this->Signature_facilitator == ''){
+            throw new Exception('Misconfiguration regarding the facilitator'); 
         }
-        return $this->base_url_api_paypal.'VERSION='.self::VERSION_API_PAYPAL.'&USER='.$this->username_facilitator.'&PWD='.$this->password_facilitator.'&SIGNATURE='.$this->signature_facilitator;
+        return $this->base_url_api_paypal.'VERSION='.self::VERSION_API_PAYPAL.'&USER='.$this->Username_facilitator.'&PWD='.$this->Password_facilitator.'&SIGNATURE='.$this->Signature_facilitator;
     }
 }
 ?>
