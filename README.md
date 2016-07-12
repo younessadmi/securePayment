@@ -91,6 +91,6 @@ Mais si vous souhaitez plus de détail, vous pouvez utiliser la methode `$obj->g
 
 * [**Younes SADMI**](https://github.com/younessadmi)
 * [**Benjamin HUBERT**](https://github.com/BenjaminHubert)
-* [**Bertrand FREYLIN**](https://github.com/BertrandF26/)
+* [**Bertrand FREYLIN**](https://github.com/BertrandFreylin/)
 * [**Axel DELANNAY**](https://github.com/axeldelannay/)
 * [**Thibault LENORMAND**](https://github.com/ThibaultLenormand)
